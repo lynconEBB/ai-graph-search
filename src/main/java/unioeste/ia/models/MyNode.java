@@ -3,15 +3,15 @@ package unioeste.ia.models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Node {
+public class MyNode {
     String name;
     public List<Edge> edges;
 
-    public Node() {
+    public MyNode() {
         this.edges = new ArrayList<>();
     }
 
-    public Node(String name) {
+    public MyNode(String name) {
         this.name = name;
         this.edges = new ArrayList<>();
     }

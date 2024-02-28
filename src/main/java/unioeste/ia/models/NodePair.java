@@ -3,10 +3,10 @@ package unioeste.ia.models;
 import java.util.Objects;
 
 public class NodePair {
-    public Node first;
-    public Node second;
+    public MyNode first;
+    public MyNode second;
 
-    public NodePair(Node first, Node second) {
+    public NodePair(MyNode first, MyNode second) {
         this.first = first;
         this.second = second;
     }
@@ -18,12 +18,12 @@ public class NodePair {
         if (o == null || getClass() != o.getClass())
             return false;
         NodePair nodePair = (NodePair) o;
-        return (Objects.equals(first.name, nodePair.first.name) && Objects.equals(second.name, nodePair.second.name))
-                || (Objects.equals(second.name, nodePair.first.name) && Objects.equals(first.name, nodePair.second.name));
+        return (first.name.equals(nodePair.first.name) && second.name.equals(nodePair.second.name))
+                || (second.name.equals(nodePair.first.name) && first.name.equals(nodePair.second.name));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(first, second);
+        return Objects.hash(first.name) ^ Objects.hash(second.name);
     }
 }

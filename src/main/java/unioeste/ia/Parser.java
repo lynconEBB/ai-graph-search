@@ -1,15 +1,13 @@
 package unioeste.ia;
 
 import unioeste.ia.models.Edge;
-import unioeste.ia.models.Graph;
-import unioeste.ia.models.Node;
+import unioeste.ia.models.MyGraph;
+import unioeste.ia.models.MyNode;
 import unioeste.ia.models.NodePair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +18,7 @@ public class Parser {
     private static final Pattern CAN_GO_PATTERN = Pattern.compile("pode_ir\\s*\\(\\s*(\\w+)\\s*,\\s*(\\w+)\\s*,\\s*(\\d+)\\s*\\)\\s*\\.", Pattern.CASE_INSENSITIVE);
     private static final Pattern HEURISTIC_PATTERN = Pattern.compile("h\\s*\\(\\s*(\\w+)\\s*,\\s*(\\w+)\\s*,\\s*(\\d+)\\s*\\)\\s*\\.", Pattern.CASE_INSENSITIVE);
 
-    public static Graph parseFile(String filename) {
+    public static MyGraph parseFile(String filename) {
         File file = new File(filename);
         Scanner scanner = null;
         try {
@@ -41,7 +39,8 @@ public class Parser {
             return null;
         String finalNodeName = secondLineMatcher.group(1);
 
-        Map<String, Node> nodesMap = new HashMap<>();
+        Map<String, MyNode> nodesMap = new HashMap<>();
+        List<Edge> edges = new ArrayList<>();
         Map<NodePair, Integer> heuristicsMap = new HashMap<>();
 
         while (scanner.hasNext())  {
@@ -58,11 +57,13 @@ public class Parser {
                 if (firstNodeName == null || secondNodeName == null || distance <= 0)
                     return null;
 
-                Node firstNode = nodesMap.computeIfAbsent(firstNodeName, k -> new Node(firstNodeName));
-                Node secondNode = nodesMap.computeIfAbsent(secondNodeName, k -> new Node(secondNodeName));
+                MyNode firstNode = nodesMap.computeIfAbsent(firstNodeName, k -> new MyNode(firstNodeName));
+                MyNode secondNode = nodesMap.computeIfAbsent(secondNodeName, k -> new MyNode(secondNodeName));
 
-                firstNode.edges.add(new Edge(secondNode, distance));
-                secondNode.edges.add(new Edge(firstNode,distance));
+                Edge edge = new Edge(firstNode,secondNode, distance);
+                edges.add(edge);
+                firstNode.edges.add(edge);
+                secondNode.edges.add(new Edge(secondNode,firstNode,distance));
 
             } else {
                 Matcher heuristicMatcher = HEURISTIC_PATTERN.matcher(line);
@@ -75,26 +76,26 @@ public class Parser {
                 if (firstNodeName == null || secondNodeName == null || distance <= 0)
                     return null;
 
-                Node firstNode = nodesMap.computeIfAbsent(firstNodeName, k -> new Node(firstNodeName));
-                Node secondNode = nodesMap.computeIfAbsent(secondNodeName, k -> new Node(secondNodeName));
+                MyNode firstNode = nodesMap.computeIfAbsent(firstNodeName, k -> new MyNode(firstNodeName));
+                MyNode secondNode = nodesMap.computeIfAbsent(secondNodeName, k -> new MyNode(secondNodeName));
 
                 NodePair pair = new NodePair(firstNode, secondNode);
                 if (heuristicsMap.containsKey(pair))
-                    return null;
+                    continue;
 
                 heuristicsMap.put(pair, distance);
             }
         }
 
-        Node originNode = nodesMap.get(startingNodeName);
+        MyNode originNode = nodesMap.get(startingNodeName);
         if (originNode == null)
             return null;
 
-        Node finalNode = nodesMap.get(finalNodeName);
+        MyNode finalNode = nodesMap.get(finalNodeName);
         if (finalNode == null)
             return null;
 
-        return new Graph(originNode, finalNode, heuristicsMap);
+        return new MyGraph(originNode, finalNode, heuristicsMap, edges);
     }
 
 }

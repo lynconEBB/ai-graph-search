@@ -7,21 +7,16 @@ import imgui.extension.imguifiledialog.ImGuiFileDialog;
 import imgui.extension.imguifiledialog.callback.ImGuiFileDialogPaneFun;
 import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
 import imgui.flag.ImGuiConfigFlags;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.stb.STBImage.*;
-import org.lwjgl.opengl.GL32;
-import unioeste.ia.models.Graph;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.nio.IntBuffer;
-import java.util.Scanner;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12C.GL_CLAMP_TO_EDGE;
-import static org.lwjgl.stb.STBImage.stbi_load;
+import org.lwjgl.glfw.GLFW;
+import unioeste.ia.models.GraphRenderer;
+import unioeste.ia.models.MyGraph;
 
 public class Main extends Application {
+    private float zoom = 1;
+    private boolean isSolving = false;
+    private MyGraph loadedGraph;
+    private GraphRenderer graphRenderer = new GraphRenderer();
+
     private static ImGuiFileDialogPaneFun fileDialogCallback = new ImGuiFileDialogPaneFun() {
         @Override
         public void paneFun(String s, long l, boolean b) {
@@ -36,7 +31,7 @@ public class Main extends Application {
                     ImGuiFileDialog.openModal("file-dialog", "Choose graph file descriptior", ".*", ".", fileDialogCallback, 250, 1, 42, ImGuiFileDialogFlags.None);
                 }
                 if (ImGui.menuItem("Close")) {
-
+                    loadedGraph = null;
                 }
                 ImGui.separator();
                 if (ImGui.menuItem("Exit")) {
@@ -62,18 +57,16 @@ public class Main extends Application {
     }
 
     private void drawViewWindow() {
-        ImGui.begin("Graph View");
+        ImGui.begin("MyGraph View");
         {
-            ImGui.text("Hello, World!");
-
-            int textureID = GL32.glGenTextures();
-            GL32.glBindTexture(GL_TEXTURE_2D, textureID);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-
+            if (loadedGraph != null) {
+                float imageHeight = ImGui.getWindowHeight() - 50 * zoom;
+                float imageWidth = imageHeight * graphRenderer.getAspectRatio();
+                ImGui.setCursorPosX((ImGui.getWindowWidth() / 2) - (imageWidth / 2));
+                ImGui.image(graphRenderer.getTextureID(),imageHeight * graphRenderer.getAspectRatio(), imageHeight);
+            } else {
+                ImGui.text("No graph loaded");
+            }
         }
         ImGui.end();
     }
@@ -94,13 +87,15 @@ public class Main extends Application {
         drawViewWindow();
         drawLogWindow();
 
-        if (ImGuiFileDialog.display("file-dialog", ImGuiFileDialogFlags.None, 200, 400, 800, 600)) {
+        if (ImGuiFileDialog.display("file-dialog", ImGuiFileDialogFlags.None, 200, 400, 1200, 600)) {
             if (ImGuiFileDialog.isOk() && !ImGuiFileDialog.getSelection().isEmpty()) {
                 String filename = ImGuiFileDialog.getSelection().values().stream().findFirst().get();
-                Graph graph = Parser.parseFile(filename);
-                if (graph == null) {
-
+                loadedGraph = Parser.parseFile(filename);
+                if (loadedGraph !=null) {
+                    graphRenderer.render(loadedGraph);
                 }
+                isSolving = false;
+                zoom = 1;
             }
             ImGuiFileDialog.close();
         }
@@ -116,6 +111,14 @@ public class Main extends Application {
     protected void initImGui(Configuration config) {
         super.initImGui(config);
         ImGui.getIO().addConfigFlags(ImGuiConfigFlags.DockingEnable);
+
+        GLFW.glfwSetScrollCallback(handle, (long handle, double x, double y) -> {
+            int controlActive = GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_CONTROL);
+            if (controlActive > 0) {
+                zoom += (float) (-0.5 * y);
+            }
+        });
+        graphRenderer.init();
     }
 
     public static void main(String[] args) {

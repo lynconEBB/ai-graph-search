@@ -10,13 +10,15 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.lwjgl:lwjgl-bom:3.3.3"))
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    implementation("org.lwjgl:lwjgl-stb")
+    implementation("ch.qos.logback:logback-classic:1.5.0")
     implementation("io.github.spair:imgui-java-app:1.86.11")
     implementation("guru.nidi:graphviz-java:0.18.1")
+
+    implementation("org.lwjgl:lwjgl-stb")
+    runtimeOnly("org.lwjgl:lwjgl-stb::natives-windows")
 
 }
 

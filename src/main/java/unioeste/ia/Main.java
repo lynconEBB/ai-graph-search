@@ -7,6 +7,19 @@ import imgui.extension.imguifiledialog.ImGuiFileDialog;
 import imgui.extension.imguifiledialog.callback.ImGuiFileDialogPaneFun;
 import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
 import imgui.flag.ImGuiConfigFlags;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.stb.STBImage.*;
+import org.lwjgl.opengl.GL32;
+import unioeste.ia.models.Graph;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.nio.IntBuffer;
+import java.util.Scanner;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL12C.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.stb.STBImage.stbi_load;
 
 public class Main extends Application {
     private static ImGuiFileDialogPaneFun fileDialogCallback = new ImGuiFileDialogPaneFun() {
@@ -52,6 +65,15 @@ public class Main extends Application {
         ImGui.begin("Graph View");
         {
             ImGui.text("Hello, World!");
+
+            int textureID = GL32.glGenTextures();
+            GL32.glBindTexture(GL_TEXTURE_2D, textureID);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
         }
         ImGui.end();
     }
@@ -74,7 +96,11 @@ public class Main extends Application {
 
         if (ImGuiFileDialog.display("file-dialog", ImGuiFileDialogFlags.None, 200, 400, 800, 600)) {
             if (ImGuiFileDialog.isOk() && !ImGuiFileDialog.getSelection().isEmpty()) {
-                String a = ImGuiFileDialog.getSelection().values().stream().findFirst().get();
+                String filename = ImGuiFileDialog.getSelection().values().stream().findFirst().get();
+                Graph graph = Parser.parseFile(filename);
+                if (graph == null) {
+
+                }
             }
             ImGuiFileDialog.close();
         }

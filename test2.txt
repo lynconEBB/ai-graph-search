@@ -1,5 +1,5 @@
-ponto_inicial(a).
-ponto_final(e).
+ponto_inicial(e).
+ponto_final(a).
 pode_ir(a,b,3).
 pode_ir(b,c,5).
 pode_ir(a,c,8).

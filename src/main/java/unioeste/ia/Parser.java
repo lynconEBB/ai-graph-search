@@ -41,7 +41,6 @@ public class Parser {
 
         Map<String, MyNode> nodesMap = new HashMap<>();
         List<Edge> edges = new ArrayList<>();
-        Map<NodePair, Integer> heuristicsMap = new HashMap<>();
 
         while (scanner.hasNext())  {
             String line = scanner.nextLine().trim();
@@ -73,17 +72,13 @@ public class Parser {
                 String secondNodeName = heuristicMatcher.group(2);
                 int distance = Integer.parseInt(heuristicMatcher.group(3));
 
-                if (firstNodeName == null || secondNodeName == null || distance <= 0)
+                if ((!firstNodeName.equals(finalNodeName) && !secondNodeName.equals(finalNodeName)) || distance <= 0)
                     return null;
 
-                MyNode firstNode = nodesMap.computeIfAbsent(firstNodeName, k -> new MyNode(firstNodeName));
-                MyNode secondNode = nodesMap.computeIfAbsent(secondNodeName, k -> new MyNode(secondNodeName));
+                String nodeName = firstNodeName.equals(finalNodeName) ? secondNodeName : firstNodeName;
 
-                NodePair pair = new NodePair(firstNode, secondNode);
-                if (heuristicsMap.containsKey(pair))
-                    continue;
-
-                heuristicsMap.put(pair, distance);
+                MyNode node = nodesMap.computeIfAbsent(nodeName, k -> new MyNode(firstNodeName));
+                node.distanceToEnd = distance;
             }
         }
 
@@ -94,8 +89,9 @@ public class Parser {
         MyNode finalNode = nodesMap.get(finalNodeName);
         if (finalNode == null)
             return null;
+        finalNode.distanceToEnd = 0;
 
-        return new MyGraph(originNode, finalNode, heuristicsMap, edges);
+        return new MyGraph(originNode, finalNode, edges);
     }
 
 }

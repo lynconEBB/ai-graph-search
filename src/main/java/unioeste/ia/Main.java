@@ -16,8 +16,6 @@ import unioeste.ia.solvers.DepthSolver;
 
 public class Main extends Application {
     private float zoom = 1;
-    private boolean isSolving = false;
-
     private MyGraph loadedGraph;
     private GraphRenderer graphRenderer = new GraphRenderer();
     private Solver solver;
@@ -52,17 +50,18 @@ public class Main extends Application {
 
                 }
                 if (ImGui.menuItem("A Star (A*)")) {
-                    solver = new AStarSolver();
+                    solver = new AStarSolver(loadedGraph);
                 }
 
                 ImGui.separator();
-                ImGui.beginDisabled();
                 if (ImGui.menuItem("Next")) {
+                    solver.next();
+                    graphRenderer.update(solver, loadedGraph);
                 }
                 if (ImGui.menuItem("Finish")) {
+                    solver.solve();
+                    graphRenderer.update(solver, loadedGraph);
                 }
-
-                ImGui.endDisabled();
 
                 ImGui.endMenu();
             }
@@ -109,7 +108,6 @@ public class Main extends Application {
                 if (loadedGraph !=null) {
                     graphRenderer.render(loadedGraph);
                 }
-                isSolving = false;
                 zoom = 1;
             }
             ImGuiFileDialog.close();

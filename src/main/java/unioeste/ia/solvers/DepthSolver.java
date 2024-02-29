@@ -1,4 +1,6 @@
 package unioeste.ia.solvers;
 
-public class DepthSolver {
+import unioeste.ia.models.Solver;
+
+public class DepthSolver implements Solver {
 }

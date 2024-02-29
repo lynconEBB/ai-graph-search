@@ -1,4 +1,6 @@
 package unioeste.ia.solvers;
 
-public class AStarSolver {
+import unioeste.ia.models.Solver;
+
+public class AStarSolver implements Solver {
 }

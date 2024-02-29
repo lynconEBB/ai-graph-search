@@ -10,12 +10,17 @@ import imgui.flag.ImGuiConfigFlags;
 import org.lwjgl.glfw.GLFW;
 import unioeste.ia.models.GraphRenderer;
 import unioeste.ia.models.MyGraph;
+import unioeste.ia.models.Solver;
+import unioeste.ia.solvers.AStarSolver;
+import unioeste.ia.solvers.DepthSolver;
 
 public class Main extends Application {
     private float zoom = 1;
     private boolean isSolving = false;
+
     private MyGraph loadedGraph;
     private GraphRenderer graphRenderer = new GraphRenderer();
+    private Solver solver;
 
     private static ImGuiFileDialogPaneFun fileDialogCallback = new ImGuiFileDialogPaneFun() {
         @Override
@@ -41,14 +46,24 @@ public class Main extends Application {
             }
             if (ImGui.beginMenu("Actions")) {
                 if (ImGui.menuItem("DFS")) {
-
+                    solver = new DepthSolver();
                 }
                 if (ImGui.menuItem("BFS")) {
 
                 }
                 if (ImGui.menuItem("A Star (A*)")) {
-
+                    solver = new AStarSolver();
                 }
+
+                ImGui.separator();
+                ImGui.beginDisabled();
+                if (ImGui.menuItem("Next")) {
+                }
+                if (ImGui.menuItem("Finish")) {
+                }
+
+                ImGui.endDisabled();
+
                 ImGui.endMenu();
             }
 

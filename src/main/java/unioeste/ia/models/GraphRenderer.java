@@ -3,8 +3,10 @@ package unioeste.ia.models;
 import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Font;
 import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.model.MutableNode;
 import org.lwjgl.opengl.GL32;
@@ -33,10 +35,22 @@ public class GraphRenderer {
             MyNode current = updateGraph.destination;
 
             while (!current.equals(updateGraph.origin)) {
-                MutableNode node = viewNodes.get(current.name);
-                node.attrs().add(Color.BLUE);
-                node.attrs().add(Color.BLUE.font());
-                node.linkTo(viewNodes.get(current.previousNode.name)).attrs().add(Color.BLUE);
+                MutableNode fromNode = viewNodes.get(current.name);
+                MutableNode toNode = viewNodes.get(current.previousNode.name);
+                fromNode.attrs().add(Color.BLUE);
+                fromNode.attrs().add(Color.BLUE.font());
+
+                Link link = currentGraph
+                        .edges()
+                        .stream()
+                        .filter(l ->
+                            (l.to().name().value().equals(fromNode.name().value()) && l.from().name().value().equals(toNode.name().value()))
+                            || (l.to().name().value().equals(toNode.name().value()) && l.from().name().value().equals(fromNode.name().value()))
+                        ).findFirst().get();
+
+                link.attrs().add(Color.BLUE);
+                link.attrs().add(Style.BOLD);
+                link.attrs().add(Color.BLUE.font());
 
                 current = current.previousNode;
             }
@@ -44,6 +58,7 @@ public class GraphRenderer {
             MutableNode node = viewNodes.get(current.name);
             node.attrs().add(Color.BLUE);
             node.attrs().add(Color.BLUE.font());
+
         } else {
             currentGraph.nodes().forEach(n -> {
                 if (solver.getCurrentNode() != null && solver.getCurrentNode().name.equals(n.name().value())) {

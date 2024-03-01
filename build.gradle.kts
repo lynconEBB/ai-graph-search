@@ -15,7 +15,8 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:1.5.0")
     implementation("guru.nidi:graphviz-java:0.18.1")
-
+    implementation("org.graalvm.js:js:23.0.2")
+    
     implementation("io.github.spair:imgui-java-app:1.86.11")
     implementation("org.lwjgl:lwjgl-stb")
     runtimeOnly("org.lwjgl:lwjgl-stb::natives-windows")

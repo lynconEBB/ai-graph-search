@@ -17,8 +17,7 @@ public class AStarSolver implements Solver {
 
     public AStarSolver(MyGraph graph) {
         this.graph = graph;
-
-        // resetar grafo (visitar pra falso, min Dist pra infinito, e total dist para null)
+        graph.reset();
 
         this.graph.origin.minDistanceFromStart = 0;
         this.queue.add(graph.origin);

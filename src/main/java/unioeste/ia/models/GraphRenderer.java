@@ -30,7 +30,16 @@ public class GraphRenderer {
     private MutableGraph currentGraph;
     Map<String, MutableNode> viewNodes;
 
+    public void resetView() {
+        currentGraph.nodes().forEach(n -> {
+            n.attrs().add(Color.BLACK.font());
+            n.attrs().add(Color.BLACK);
+        });
+    }
+
     public void update(Solver solver, MyGraph updateGraph) {
+        resetView();
+
         if (solver.isSolved()) {
             MyNode current = updateGraph.destination;
 
@@ -60,18 +69,9 @@ public class GraphRenderer {
             node.attrs().add(Color.BLUE.font());
 
         } else {
-            currentGraph.nodes().forEach(n -> {
-                if (solver.getCurrentNode() != null && solver.getCurrentNode().name.equals(n.name().value())) {
-                    n.attrs().add(Color.RED);
-                    n.attrs().add(Color.RED.font());
-                } else {
-                    if (n.attrs().get("fontcolor") != null)
-                        n.attrs().add(Color.BLACK.font());
-
-                    if (n.attrs().get("color") != null)
-                        n.attrs().add(Color.BLACK);
-                }
-            });
+            MutableNode node = viewNodes.get(solver.getCurrentNode().name);
+            node.attrs().add(Color.RED);
+            node.attrs().add(Color.RED.font());
         }
 
         renderToTexture();

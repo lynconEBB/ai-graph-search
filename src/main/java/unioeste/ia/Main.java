@@ -7,10 +7,9 @@ import imgui.extension.imguifiledialog.ImGuiFileDialog;
 import imgui.extension.imguifiledialog.callback.ImGuiFileDialogPaneFun;
 import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
 import imgui.flag.ImGuiConfigFlags;
+import imgui.flag.ImGuiWindowFlags;
 import org.lwjgl.glfw.GLFW;
-import unioeste.ia.models.GraphRenderer;
-import unioeste.ia.models.MyGraph;
-import unioeste.ia.models.Solver;
+import unioeste.ia.models.*;
 import unioeste.ia.solvers.AStarSolver;
 import unioeste.ia.solvers.DepthSolver;
 
@@ -45,22 +44,14 @@ public class Main extends Application {
             if (ImGui.beginMenu("Actions")) {
                 if (ImGui.menuItem("DFS")) {
                     solver = new DepthSolver();
+                    graphRenderer.render(loadedGraph);
                 }
                 if (ImGui.menuItem("BFS")) {
 
                 }
                 if (ImGui.menuItem("A Star (A*)")) {
                     solver = new AStarSolver(loadedGraph);
-                }
-
-                ImGui.separator();
-                if (ImGui.menuItem("Next")) {
-                    solver.next();
-                    graphRenderer.update(solver, loadedGraph);
-                }
-                if (ImGui.menuItem("Finish")) {
-                    solver.solve();
-                    graphRenderer.update(solver, loadedGraph);
+                    graphRenderer.render(loadedGraph);
                 }
 
                 ImGui.endMenu();
@@ -74,10 +65,29 @@ public class Main extends Application {
         ImGui.begin("MyGraph View");
         {
             if (loadedGraph != null) {
-                float imageHeight = ImGui.getWindowHeight() - 50 * zoom;
-                float imageWidth = imageHeight * graphRenderer.getAspectRatio();
-                ImGui.setCursorPosX((ImGui.getWindowWidth() / 2) - (imageWidth / 2));
-                ImGui.image(graphRenderer.getTextureID(),imageHeight * graphRenderer.getAspectRatio(), imageHeight);
+                if (solver != null) {
+                    ImGui.beginDisabled(solver.isSolved());
+                    ImGui.setCursorPosX((ImGui.getContentRegionAvailX() / 2) - 100);
+                    if (ImGui.button("Next", 100,0)) {
+                        solver.next();
+                        graphRenderer.update(solver, loadedGraph);
+                    }
+                    ImGui.sameLine();
+                    if (ImGui.button("Finish", 100,0)) {
+                        solver.solve();
+                        graphRenderer.update(solver, loadedGraph);
+                    }
+                    ImGui.endDisabled();
+                    ImGui.separator();
+                }
+
+                ImGui.beginChild("graphImage");
+                    ImGui.setCursorPosY(ImGui.getCursorPosY() + 10);
+                    float imageHeight = ImGui.getWindowHeight() - 50 * zoom;
+                    float imageWidth = imageHeight * graphRenderer.getAspectRatio();
+                    ImGui.setCursorPosX((ImGui.getWindowWidth() / 2) - (imageWidth / 2));
+                    ImGui.image(graphRenderer.getTextureID(),imageHeight * graphRenderer.getAspectRatio(), imageHeight);
+                ImGui.endChild();
             } else {
                 ImGui.text("No graph loaded");
             }
@@ -86,9 +96,9 @@ public class Main extends Application {
     }
 
     private void drawLogWindow() {
-        ImGui.begin("Log");
+        ImGui.begin("Log", ImGuiWindowFlags.HorizontalScrollbar);
         {
-
+            Logger.drawAllMessages();
         }
         ImGui.end();
     }

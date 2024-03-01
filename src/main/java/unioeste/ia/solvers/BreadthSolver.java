@@ -5,50 +5,51 @@ import unioeste.ia.models.MyGraph;
 import unioeste.ia.models.MyNode;
 import unioeste.ia.models.Solver;
 
-import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Queue;
 
-public class DepthSolver implements Solver {
+public class BreadthSolver implements Solver {
+
     private boolean isSolved = false;
-    private Stack<MyNode> stack;
+    private Queue<MyNode> queue;
     private final MyGraph graph;
     private MyNode current;
 
-    public DepthSolver(MyGraph graph) {
+    public BreadthSolver(MyGraph graph) {
        this.graph = graph;
-       this.stack = new Stack<>();
+       this.queue = new LinkedList<>();
 
-       graph.reset();
-       stack.add(graph.origin);
+        this.graph.reset();
+        this.queue.add(graph.origin);
     }
-
     @Override
     public void next() {
-        current = stack.pop();
+
+        current = queue.poll();
         current.visited = true;
 
         if (current == graph.destination) {
             this.isSolved = true;
-            this.stack.clear();
+            this.queue.clear();
         }
 
         for (Edge edge : current.edges) {
             if (edge.dest.visited) {
                 continue;
             }
-            if (stack.contains(edge.dest)) {
+            if (queue.contains(edge.dest)) {
                 edge.dest.previousNode = current;
                 continue;
             }
 
             edge.dest.previousNode = current;
-            stack.add(edge.dest);
+            queue.add(edge.dest);
         }
-
     }
 
     @Override
     public void solve() {
-        while (!stack.isEmpty()) {
+        while (!queue.isEmpty()) {
             next();
         }
     }

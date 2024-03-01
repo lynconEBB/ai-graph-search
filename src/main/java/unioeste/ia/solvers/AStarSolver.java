@@ -1,35 +1,37 @@
 package unioeste.ia.solvers;
 
-import unioeste.ia.models.Edge;
-import unioeste.ia.models.MyGraph;
-import unioeste.ia.models.MyNode;
-import unioeste.ia.models.Solver;
+import unioeste.ia.Logger;
+import unioeste.ia.models.*;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class AStarSolver implements Solver {
-
     private boolean isSolved = false;
+    PriorityQueue<MyNode> queue = new PriorityQueue<>(Comparator.comparingInt(n -> n.totalDistance));
+    private int visits;
     private MyNode currentNode;
     private final MyGraph graph;
-    PriorityQueue<MyNode> queue = new PriorityQueue<>(Comparator.comparingInt(n -> n.totalDistance));
 
     public AStarSolver(MyGraph graph) {
+        this.visits = 0;
         this.graph = graph;
         graph.reset();
 
         this.graph.origin.minDistanceFromStart = 0;
         this.queue.add(graph.origin);
+        Logger.addMessage("Setting solver to A*!",Origin.ASTAR_SOLVER, Severity.INFO);
     }
 
     @Override
     public void next() {
         currentNode = queue.poll();
         currentNode.visited = true;
+        visits++;
 
         if (currentNode == graph.destination) {
             this.isSolved = true;
+            Logger.addMessage("Shortest path to final node found with " + visits + " visits!",Origin.ASTAR_SOLVER, Severity.INFO);
             return;
         }
 
@@ -53,7 +55,6 @@ public class AStarSolver implements Solver {
         while (!queue.isEmpty()) {
             next();
         }
-        this.isSolved = true;
     }
 
     @Override
@@ -64,5 +65,9 @@ public class AStarSolver implements Solver {
     @Override
     public boolean isSolved() {
         return isSolved;
+    }
+
+    public int getVisits() {
+        return this.visits;
     }
 }

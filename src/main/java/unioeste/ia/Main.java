@@ -11,6 +11,7 @@ import imgui.flag.ImGuiWindowFlags;
 import org.lwjgl.glfw.GLFW;
 import unioeste.ia.models.*;
 import unioeste.ia.solvers.AStarSolver;
+import unioeste.ia.solvers.BreadthSolver;
 import unioeste.ia.solvers.DepthSolver;
 
 public class Main extends Application {
@@ -43,11 +44,12 @@ public class Main extends Application {
             }
             if (ImGui.beginMenu("Actions")) {
                 if (ImGui.menuItem("DFS")) {
-                    solver = new DepthSolver();
+                    solver = new DepthSolver(loadedGraph);
                     graphRenderer.render(loadedGraph);
                 }
                 if (ImGui.menuItem("BFS")) {
-
+                    solver = new BreadthSolver(loadedGraph);
+                    graphRenderer.render(loadedGraph);
                 }
                 if (ImGui.menuItem("A Star (A*)")) {
                     solver = new AStarSolver(loadedGraph);

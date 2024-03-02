@@ -4,6 +4,7 @@ import imgui.ImGui;
 import unioeste.ia.models.LogMessage;
 import unioeste.ia.models.Origin;
 import unioeste.ia.models.Severity;
+import unioeste.ia.utils.Fonts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +30,11 @@ public class Logger {
     }
 
     public void renderAll() {
+        ImGui.pushFont(Fonts.subtitleFont);
         for (LogMessage message : messages) {
             ImGui.textColored(message.severity.color,message.origin.displayName + message.text);
         }
+        ImGui.popFont();
         if (ImGui.getScrollY() >= ImGui.getScrollMaxY()) {
             ImGui.setScrollHereY(1);
         }

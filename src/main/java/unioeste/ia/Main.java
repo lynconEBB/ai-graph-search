@@ -13,14 +13,16 @@ import unioeste.ia.models.*;
 import unioeste.ia.solvers.AStarSolver;
 import unioeste.ia.solvers.BreadthSolver;
 import unioeste.ia.solvers.DepthSolver;
+import unioeste.ia.utils.Fonts;
+import unioeste.ia.utils.ImGuiUtils;
 
 public class Main extends Application {
     private float zoom = 1;
     private MyGraph loadedGraph;
-    private GraphRenderer graphRenderer = new GraphRenderer();
+    private final GraphRenderer graphRenderer = new GraphRenderer();
     private Solver solver;
 
-    private static ImGuiFileDialogPaneFun fileDialogCallback = new ImGuiFileDialogPaneFun() {
+    private static final ImGuiFileDialogPaneFun fileDialogCallback = new ImGuiFileDialogPaneFun() {
         @Override
         public void paneFun(String s, long l, boolean b) {
 
@@ -43,6 +45,7 @@ public class Main extends Application {
                 ImGui.endMenu();
             }
             if (ImGui.beginMenu("Actions")) {
+                ImGui.beginDisabled(loadedGraph == null);
                 if (ImGui.menuItem("DFS")) {
                     solver = new DepthSolver(loadedGraph);
                     graphRenderer.render(loadedGraph);
@@ -55,7 +58,7 @@ public class Main extends Application {
                     solver = new AStarSolver(loadedGraph);
                     graphRenderer.render(loadedGraph);
                 }
-
+                ImGui.endDisabled();
                 ImGui.endMenu();
             }
 
@@ -68,7 +71,7 @@ public class Main extends Application {
         {
             if (loadedGraph != null) {
                 if (solver != null) {
-                    ImGui.beginDisabled(solver.isSolved());
+                    ImGui.beginDisabled(solver.getStatus() != Status.SOLVING);
                     ImGui.setCursorPosX((ImGui.getContentRegionAvailX() / 2) - 100);
                     if (ImGui.button("Next", 100,0)) {
                         solver.next();
@@ -91,7 +94,10 @@ public class Main extends Application {
                     ImGui.image(graphRenderer.getTextureID(),imageHeight * graphRenderer.getAspectRatio(), imageHeight);
                 ImGui.endChild();
             } else {
+                ImGui.pushFont(Fonts.bigFont);
+                ImGuiUtils.centerNextItem(ImGui.calcTextSize("No graph loaded"));
                 ImGui.text("No graph loaded");
+                ImGui.popFont();
             }
         }
         ImGui.end();
@@ -117,7 +123,8 @@ public class Main extends Application {
             if (ImGuiFileDialog.isOk() && !ImGuiFileDialog.getSelection().isEmpty()) {
                 String filename = ImGuiFileDialog.getSelection().values().stream().findFirst().get();
                 loadedGraph = Parser.parseFile(filename);
-                if (loadedGraph !=null) {
+                solver = null;
+                if (loadedGraph != null) {
                     graphRenderer.render(loadedGraph);
                 }
                 zoom = 1;
@@ -135,6 +142,7 @@ public class Main extends Application {
     @Override
     protected void initImGui(Configuration config) {
         super.initImGui(config);
+        Fonts.InitFonts();
         ImGui.getIO().addConfigFlags(ImGuiConfigFlags.DockingEnable);
 
         GLFW.glfwSetScrollCallback(handle, (long handle, double x, double y) -> {

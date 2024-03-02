@@ -1,49 +1,57 @@
 package unioeste.ia.solvers;
 
-import unioeste.ia.models.Edge;
-import unioeste.ia.models.MyGraph;
-import unioeste.ia.models.MyNode;
-import unioeste.ia.models.Solver;
+import unioeste.ia.Logger;
+import unioeste.ia.models.*;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class BreadthSolver implements Solver {
-
-    private boolean isSolved = false;
+    private Status status;
     private Queue<MyNode> queue;
     private final MyGraph graph;
     private MyNode current;
+    private int visits;
 
     public BreadthSolver(MyGraph graph) {
-       this.graph = graph;
-       this.queue = new LinkedList<>();
+        this.visits = 0;
+        this.graph = graph;
+        this.queue = new LinkedList<>();
+        this.status = Status.SOLVING;
 
         this.graph.reset();
         this.queue.add(graph.origin);
+
+        Logger.addMessage("Setting solver to BFS!", Origin.BFS_SOLVER, Severity.INFO);
     }
+
     @Override
     public void next() {
+        if (queue.isEmpty()) {
+            Logger.addMessage("Could not find the a path from origin node to final node!", Origin.BFS_SOLVER, Severity.ERROR);
+            status = Status.NOT_FOUND;
+            return;
+        }
 
         current = queue.poll();
         current.visited = true;
+        visits++;
 
         if (current == graph.destination) {
-            this.isSolved = true;
+            this.status = Status.FOUND;
+            Logger.addMessage("Shortest path to final node found with " + visits + " visits and distance " + graph.getFoundPathDistance(), Origin.BFS_SOLVER, Severity.INFO);
             this.queue.clear();
         }
 
         for (Edge edge : current.edges) {
-            if (edge.dest.visited) {
+            if (edge.dest.visited)
                 continue;
-            }
-            if (queue.contains(edge.dest)) {
-                edge.dest.previousNode = current;
-                continue;
-            }
 
-            edge.dest.previousNode = current;
-            queue.add(edge.dest);
+            if (edge.dest.previousNode == null)
+                edge.dest.previousNode = current;
+
+            if (!queue.contains(edge.dest))
+                queue.add(edge.dest);
         }
     }
 
@@ -51,6 +59,10 @@ public class BreadthSolver implements Solver {
     public void solve() {
         while (!queue.isEmpty()) {
             next();
+        }
+        if (status != Status.FOUND) {
+            Logger.addMessage("Could not find the a path from origin node to final node!", Origin.BFS_SOLVER, Severity.ERROR);
+            status = Status.NOT_FOUND;
         }
     }
 
@@ -60,7 +72,7 @@ public class BreadthSolver implements Solver {
     }
 
     @Override
-    public boolean isSolved() {
-        return isSolved;
+    public Status getStatus() {
+        return status;
     }
 }

@@ -4,5 +4,5 @@ public interface Solver {
     void next();
     void solve();
     MyNode getCurrentNode();
-    boolean isSolved();
+    Status getStatus();
 }

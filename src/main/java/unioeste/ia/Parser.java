@@ -103,7 +103,7 @@ public class Parser {
 
         MyNode finalNode = nodesMap.get(finalNodeName);
         if (finalNode == null) {
-            Logger.addMessage("Final node not found on graph" + lineCount, Origin.PARSER, Severity.ERROR);
+            Logger.addMessage("Final node not found on graph!", Origin.PARSER, Severity.ERROR);
             return null;
         }
 

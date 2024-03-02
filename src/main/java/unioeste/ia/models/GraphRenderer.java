@@ -40,38 +40,45 @@ public class GraphRenderer {
     public void update(Solver solver, MyGraph updateGraph) {
         resetView();
 
-        if (solver.isSolved()) {
-            MyNode current = updateGraph.destination;
-
-            while (!current.equals(updateGraph.origin)) {
-                MutableNode fromNode = viewNodes.get(current.name);
-                MutableNode toNode = viewNodes.get(current.previousNode.name);
-                fromNode.attrs().add(Color.BLUE);
-                fromNode.attrs().add(Color.BLUE.font());
-
-                Link link = currentGraph
-                        .edges()
-                        .stream()
-                        .filter(l ->
-                            (l.to().name().value().equals(fromNode.name().value()) && l.from().name().value().equals(toNode.name().value()))
-                            || (l.to().name().value().equals(toNode.name().value()) && l.from().name().value().equals(fromNode.name().value()))
-                        ).findFirst().get();
-
-                link.attrs().add(Color.BLUE);
-                link.attrs().add(Style.BOLD);
-                link.attrs().add(Color.BLUE.font());
-
-                current = current.previousNode;
+        switch (solver.getStatus()){
+            case SOLVING -> {
+                MutableNode node = viewNodes.get(solver.getCurrentNode().name);
+                node.attrs().add(Color.RED);
+                node.attrs().add(Color.RED.font());
             }
+            case FOUND -> {
+                MyNode current = updateGraph.destination;
 
-            MutableNode node = viewNodes.get(current.name);
-            node.attrs().add(Color.BLUE);
-            node.attrs().add(Color.BLUE.font());
+                while (!current.equals(updateGraph.origin)) {
+                    MutableNode fromNode = viewNodes.get(current.name);
+                    MutableNode toNode = viewNodes.get(current.previousNode.name);
+                    fromNode.attrs().add(Color.BLUE);
+                    fromNode.attrs().add(Color.BLUE.font());
 
-        } else {
-            MutableNode node = viewNodes.get(solver.getCurrentNode().name);
-            node.attrs().add(Color.RED);
-            node.attrs().add(Color.RED.font());
+                    Link link = currentGraph
+                            .edges()
+                            .stream()
+                            .filter(l ->
+                                    (l.to().name().value().equals(fromNode.name().value()) && l.from().name().value().equals(toNode.name().value()))
+                                            || (l.to().name().value().equals(toNode.name().value()) && l.from().name().value().equals(fromNode.name().value()))
+                            ).findFirst().get();
+
+                    link.attrs().add(Color.BLUE);
+                    link.attrs().add(Style.BOLD);
+                    link.attrs().add(Color.BLUE.font());
+
+                    if (current.previousNode != null)
+                        current = current.previousNode;
+
+                }
+
+                MutableNode node = viewNodes.get(current.name);
+                node.attrs().add(Color.BLUE);
+                node.attrs().add(Color.BLUE.font());
+            }
+            case NOT_FOUND -> {
+
+            }
         }
 
         renderToTexture();

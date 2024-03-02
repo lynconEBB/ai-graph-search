@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    application
 }
 
 group = "unioeste.sd"
@@ -21,6 +22,9 @@ dependencies {
     implementation("org.lwjgl:lwjgl-stb")
     runtimeOnly("org.lwjgl:lwjgl-stb::natives-windows")
 
+}
+application {
+    mainClass = "unioeste.ia.Main"
 }
 
 tasks.test {

@@ -1,0 +1,17 @@
+ponto_inicial(a).
+ponto_final(e).
+pode_ir(a,b,10).
+pode_ir(a,c,10).
+pode_ir(b,c,2).
+pode_ir(b,d,4).
+pode_ir(b,f,8).
+pode_ir(c,d,9).
+pode_ir(d,f,1).
+pode_ir(d,e,9).
+pode_ir(f,e,10).
+h(a,e,11).
+h(b,e,4).
+h(c,e,9).
+h(d,e,2).
+h(e,e,0).
+h(f,e,1).

@@ -13,6 +13,7 @@ import unioeste.ia.models.*;
 import unioeste.ia.solvers.AStarSolver;
 import unioeste.ia.solvers.BreadthSolver;
 import unioeste.ia.solvers.DepthSolver;
+import unioeste.ia.solvers.DijkstraSolver;
 import unioeste.ia.utils.Fonts;
 import unioeste.ia.utils.ImGuiUtils;
 
@@ -56,6 +57,10 @@ public class Main extends Application {
                 }
                 if (ImGui.menuItem("A Star (A*)")) {
                     solver = new AStarSolver(loadedGraph);
+                    graphRenderer.render(loadedGraph);
+                }
+                if (ImGui.menuItem("Dijkstra")) {
+                    solver = new DijkstraSolver(loadedGraph);
                     graphRenderer.render(loadedGraph);
                 }
                 ImGui.endDisabled();
